@@ -67,6 +67,7 @@ h2{font-family:var(--serif);font-size:22px;line-height:1.35}
 .vgroup .video + .video{border-top:1px dashed var(--line)}
 .video.rev{flex-direction:row-reverse}
 .video.rev > div:last-child{flex:1}
+.thumb.short{background-size:240% auto!important;background-position:center!important}
 .video.soon{opacity:.6}
 .video.soon .thumb::after{display:none}
 .tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:6px;margin-bottom:4px}
@@ -104,7 +105,24 @@ h2{font-family:var(--serif);font-size:22px;line-height:1.35}
 .ev .go{margin-left:auto;font-size:20px;color:var(--pink)}
 .hidden{display:none!important}
 
-footer{padding:34px 0 46px;font-size:13px;color:var(--sub);text-align:center}
+footer{padding:30px 18px 30px}
+.caution{display:flex;flex-direction:column;gap:2px;padding:14px 16px;border-radius:14px;background:#FFF6E0;border:1px solid #F2D58A;font-size:14px;color:#5A4A1E}
+.caution b{color:#B7791F;font-size:14px}
+
+/* 영상 플레이어 모달 (대학 미리 보기와 같은 방식) */
+.modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(6,15,32,.86)}
+.modal.open{display:flex}
+.sheet{width:100%;max-width:520px;display:flex;flex-direction:column;gap:12px}
+.sheet.vertical{max-width:min(380px,calc((100vh - 140px) * 9 / 16))}
+.sheet.vertical .frame{aspect-ratio:9/16}
+.sheet-top{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#fff}
+.sheet-top h3{font-family:var(--serif);font-size:18px;font-weight:700;line-height:1.35}
+.close{flex:0 0 44px;width:44px;height:44px;border-radius:22px;border:0;background:rgba(255,255,255,.14);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000}
+.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.local{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;color:#C9D3E4;font-size:14px;line-height:21px}
+.local a{display:inline-flex;align-items:center;height:44px;padding:0 18px;border-radius:12px;background:#fff;color:var(--blue-d)}
+.yt-link{align-self:center;font-size:13px;color:#C9D3E4}
 footer b{color:var(--ink)}
 </style>
 </head>
@@ -213,7 +231,6 @@ footer b{color:var(--ink)}
       </div>
 
     </div>
-    <p class="note">📶 고사 당일에는 교내 Wi-Fi 이용이 제한돼요. 휴대전화 데이터로 참여해 주세요.</p>
   </section>
 
 </main>
@@ -226,8 +243,22 @@ footer b{color:var(--ink)}
   <a class="chip event" id="chip-event" href="#event"><i>🎁</i>이벤트</a>
 </div></nav>
 
+<!-- 영상 플레이어 -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="sheet">
+    <div class="sheet-top">
+      <h3 id="modalTitle"></h3>
+      <button type="button" class="close" id="closeBtn" aria-label="닫기">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="frame" id="frame"></div>
+    <a class="yt-link" id="ytLink" target="_blank" rel="noopener">재생이 안 되면 유튜브에서 보기 ↗</a>
+  </div>
+</div>
+
 <footer class="wrap">
-  안내 내용은 현장 사정에 따라 바뀔 수 있습니다.
+  <div class="caution"><b>⚠ 유의 사항</b><span>안내 내용은 현장 사정에 따라 바뀔 수 있습니다.</span></div>
 </footer>
 
 <script>
@@ -240,11 +271,11 @@ const CONFIG = {
   ],
   // url: 단축링크(고정) / yt: 유튜브 업로드 후 영상 주소를 넣으면 썸네일이 표시됨(선택)
   videos: [
-    { tag: "추천", cls: "rec",  title: "북한산보국문역 → 후문 도보 15분", sub: "막혀도 가장 확실한 길", url: "https://kookmin.kr/gi1", yt: "" },
+    { tag: "추천", cls: "rec",  title: "북한산보국문역 → 후문 도보 15분", sub: "막혀도 가장 확실한 길", url: "https://kookmin.kr/gi1", yt: "https://www.youtube.com/shorts/anQuMyfW0hA" },
     // attach: true → 바로 위 영상과 같은 칸에 묶이고, 글씨 왼쪽·썸네일 오른쪽으로 표시
     { attach: true, title: "+ 도보 15분 가로형 영상 (ver. 길 따라 걷기)", sub: "실제 걷는 길을 그대로 따라가요", url: "https://kookmin.kr/walk", yt: "https://www.youtube.com/watch?v=BLZfsTzUb4Y" },
-    { tag: "여유", cls: "easy", title: "북한산보국문역 셔틀",          sub: "셔틀 타고 편하게",     url: "https://kookmin.kr/gi2", yt: "" },
-    { tag: "여유", cls: "easy", title: "길음역 셔틀",                  sub: "4호선 이용 시",        url: "https://kookmin.kr/gi3", yt: "" },
+    { tag: "여유", cls: "easy", title: "북한산보국문역 셔틀",          sub: "셔틀 타고 편하게",     url: "https://kookmin.kr/gi2", yt: "https://www.youtube.com/shorts/5JwQ294nD-A" },
+    { tag: "여유", cls: "easy", title: "길음역 셔틀",                  sub: "4호선 이용 시",        url: "https://kookmin.kr/gi3", yt: "https://www.youtube.com/shorts/8wKNd0pIl7Q" },
   ],
   // 오픈 시간에 '이벤트 참여하기'·'당일 이벤트'를 누르면 바로 이동할 곳
   eventLink: "https://joonkim-kookmin.github.io/roulette/",
@@ -259,14 +290,15 @@ const CONFIG = {
 // 안심길 영상 카드
 function ytId(u){ const m = (u||"").match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{11})/); return m ? m[1] : null; }
 function videoRow(v, n){
-  const id = ytId(v.yt);
+  const id = ytId(v.yt), short = /shorts\//.test(v.yt||"");
   const bg = id ? `style="background-image:url(https://i.ytimg.com/vi/${id}/hqdefault.jpg)"`
                 : `style="background:linear-gradient(135deg,var(--blue),var(--blue-d))"`;
   const tag = v.tag ? `<span class="tag ${v.cls}">${v.tag}</span>` : "";
-  const inner = `<div class="thumb" ${bg}></div><div>${tag}
+  const inner = `<div class="thumb${short ? " short" : ""}" ${bg}></div><div>${tag}
     <div class="vt">${n ? n + " " : ""}${v.title}</div><div class="vs">${v.url ? v.sub : "영상을 준비하고 있어요"}</div></div>`;
   const cls = "video" + (v.attach ? " rev" : "") + (v.url ? "" : " soon");
-  return v.url ? `<a class="${cls}" href="${v.url}" target="_blank" rel="noopener">${inner}</a>`
+  const play = id ? ` data-yt="${id}"${short ? " data-short=\"1\"" : ""} data-title="${v.title.replace(/^\+\s*/,"")}"` : "";
+  return v.url ? `<a class="${cls}" href="${v.url}" target="_blank" rel="noopener"${play}>${inner}</a>`
                : `<div class="${cls}">${inner}</div>`;
 }
 // attach 영상은 바로 위 영상과 한 칸(vgroup)으로 묶음
@@ -276,6 +308,34 @@ CONFIG.videos.forEach(v => {
   else groups.push([videoRow(v, v.n || ["①","②","③","④"][num++])]);
 });
 document.getElementById("videos").innerHTML = groups.map(g => `<div class="vgroup">${g.join("")}</div>`).join("");
+
+// 영상 플레이어: yt 주소가 있는 영상은 화면 안에서 재생, 없으면 단축링크로 이동
+let lastFocus = null;
+function openPlayer(title, id, short){
+  const watch = `https://www.youtube.com/watch?v=${id}`; lastFocus = document.activeElement;
+  document.getElementById("modalTitle").textContent = title;
+  document.querySelector(".sheet").classList.toggle("vertical", !!short);
+  document.getElementById("frame").innerHTML = location.protocol === "file:"
+    ? `<div class="local">PC에서 파일로 열면 유튜브 정책상 이 화면에서 재생이 안 돼요.<br>깃허브 주소에서는 여기서 바로 재생됩니다.<a href="${watch}" target="_blank" rel="noopener">유튜브에서 보기 ↗</a></div>`
+    : `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&playsinline=1&rel=0&origin=${encodeURIComponent(location.origin)}" referrerpolicy="strict-origin-when-cross-origin" title="${title}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+  document.getElementById("ytLink").href = watch;
+  document.getElementById("modal").classList.add("open");
+  document.body.style.overflow = "hidden";
+  document.getElementById("closeBtn").focus();
+}
+function closePlayer(){
+  document.getElementById("modal").classList.remove("open");
+  document.getElementById("frame").innerHTML = "";
+  document.body.style.overflow = "";
+  if (lastFocus) lastFocus.focus();
+}
+document.getElementById("videos").addEventListener("click", e => {
+  const a = e.target.closest("a[data-yt]"); if (!a) return;
+  e.preventDefault(); openPlayer(a.dataset.title, a.dataset.yt, a.dataset.short);
+});
+document.getElementById("closeBtn").addEventListener("click", closePlayer);
+document.getElementById("modal").addEventListener("click", e => { if (e.target.id === "modal") closePlayer(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && document.getElementById("modal").classList.contains("open")) closePlayer(); });
 
 // 당일 이벤트 오픈 제어  (테스트: 주소 끝에 ?preview=1)
 const W = CONFIG.eventWindows.map(w=>({open:new Date(w.open), close:new Date(w.close)}));
